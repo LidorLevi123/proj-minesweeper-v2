@@ -106,6 +106,7 @@ function onCellClicked(elCell) {
     const cell = gBoard[coords.i][coords.j]
 
     if (cell.isShown || cell.isMarked) return
+    if (gGame.isHintUsed) return handleHint(coords)
     
     handleFirstClick()
     handleMine(cell)
@@ -179,6 +180,29 @@ function handleMine(cell) {
     gGame.markedCount++
     renderLives()
     checkLose()
+}
+
+function handleHint(coords) {
+    for (let i = coords.i - 1; i <= coords.i + 1; i++) {
+        if (i < 0 || i > gBoard.length - 1) continue
+        for (let j = coords.j - 1; j <= coords.j + 1; j++) {
+            if (j < 0 || j > gBoard[i].length - 1) continue
+            const currCell = gBoard[i][j]
+
+            currCell.isShown = true
+
+            setTimeout(()=> {
+                currCell.isShown = false
+                renderHints()
+                renderBoard()
+            }, 1000)
+        }
+    }
+
+    gGame.isHintUsed = false
+    gGame.hintCount--
+
+    renderBoard()
 }
 
 function setEmptyPositions() {

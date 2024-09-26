@@ -7,8 +7,9 @@ function getRandomInt(min, max) {
     return Math.floor(Math.random() * (maxFloored - minCeiled) + minCeiled)
 }
 
-function getSelector(coords) {
-    return `.cell-${coords.i}-${coords.j}`
+function getElCell(coords) {
+    const { i, j } = coords
+    return document.querySelector(`[data-i="${i}"][data-j="${j}"]`)
 }
 
 function getCellCoords(elCell) {
