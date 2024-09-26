@@ -1,0 +1,110 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    display: grid;
+    height: 100vh;
+    margin: 0;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    background-color: beige;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+h1 {
+    text-align: center;
+    align-self: center;
+    background-color: crimson;
+    padding: 0.5rem;
+}
+
+.game-container {
+    display: grid;
+    justify-content: center;
+    font-size: 2.5rem;
+}
+
+.top-bar {
+    display: grid;
+    place-items: center;
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.lives-list, .hints-list {
+    display: flex;
+}
+
+.smiley {
+    border: 1px solid black;
+    width: max-content;
+    height: fit-content;
+    padding: 0.5rem;
+    cursor: pointer;
+}
+
+.hints-list .hint {
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 10px;
+    transition: 0.3s;
+} 
+
+.hints-list .hint:hover {
+    box-shadow: inset 0 0 5px 1px #eb1642;
+} 
+
+.hints-list .hint.selected {
+    box-shadow: inset 0 0 10px 5px #fe0033;
+} 
+
+table {
+    border: 1px solid black;
+    border-collapse: collapse;
+    font-family: monospace;
+    place-self: center;
+    margin: 0 auto
+}
+
+.cell {
+    width: clamp(50px, 8vw, 80px);
+    height: clamp(50px, 8vw, 80px);
+    border: 1px solid black;
+    text-align: center;
+    font-size: clamp(0.9rem, 3vw, 2rem);
+    background-color: lightgray;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.cell.shown {
+    background-color: gray;
+}
+
+.cell.shown.mine {
+    background-color: red;
+}
+
+.cell:hover {
+    opacity: 0.5;
+}
+
+footer {
+    align-self: end;
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    padding: 0.5rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+    background-color: crimson;
+}
+
+footer img {
+    width: 30px;
+    border-radius: 50%;
+}

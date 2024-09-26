@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/style.css">
+    <title>Document</title>
+</head>
+
+<body onload="onInit()">
+
+    <h1>Minesweeper</h1>
+
+    <section class="game-container">
+        <div class="top-bar">
+            <ul class="lives-list"></ul>
+            <div class="smiley" onclick="onInit()" title="Restart"></div>
+            <ul class="hints-list"></ul>
+        </div>
+        <table>
+            <tbody class="board" onmousedown="renderSmiley(SMILEY_DANGER)" onmouseup="renderSmiley(SMILEY_NORMAL)">
+            </tbody>
+        </table>
+    </section>
+
+    <footer>By Lidor <img src="img/lidor.png" alt=""></footer>
+
+    <script src="js/utils.js"></script>
+    <script src="js/main.js"></script>
+</body>
+
+</html>
