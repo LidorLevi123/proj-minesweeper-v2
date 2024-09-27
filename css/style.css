@@ -16,9 +16,18 @@ ul {
     margin: 0;
 }
 
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    margin: 0;
+}
+
 h1 {
     text-align: center;
-    align-self: center;
+    align-self: start;
     background-color: crimson;
     padding: 0.5rem;
 }
@@ -37,7 +46,7 @@ h1 {
     font-family: monospace;
 }
 
-.game-container .info>*:not(.btn-safe) {
+.game-container .info>* {
     background-color: black;
     color: red;
     padding: 0.5rem;
@@ -45,7 +54,7 @@ h1 {
     text-align: center;
 }
 
-.btn-safe {
+.btn {
     background: #00a9e9;
     border: 1px solid white;
     color: white;
@@ -57,9 +66,17 @@ h1 {
     cursor: pointer;
 }
 
-.btn-safe:hover {
+.btn:hover {
     opacity: 0.9;
     box-shadow: inset 0px 0px 5px 3px white;
+}
+
+.btn-safe {
+    background: #00a9e9;
+}
+
+.btn-manual {
+    background: orange;
 }
 
 .top-bar {
@@ -92,7 +109,7 @@ h1 {
     box-shadow: inset 0 0 5px 1px #eb1642;
 }
 
-.hints-list .hint.selected {
+.selected {
     box-shadow: inset 0 0 10px 5px #fe0033;
 }
 
@@ -105,14 +122,19 @@ table {
 }
 
 .cell {
-    width: clamp(50px, 8vw, 80px);
-    height: clamp(50px, 8vw, 80px);
+    width: clamp(50px, 8vw, 70px);
+    height: clamp(50px, 8vw, 70px);
     border: 1px solid black;
     text-align: center;
     font-size: clamp(0.9rem, 3vw, 2rem);
     background-color: lightgray;
     cursor: pointer;
     transition: 0.3s;
+}
+
+.board.manual .cell {
+    cursor: cell;
+    box-shadow: inset 0px 0px 7px 2px orange;
 }
 
 .cell.shown {

@@ -17,8 +17,8 @@ var gLevel
 function onInit() {
     stopTimer()
     setLevel()
-    createGame()
     buildBoard()
+    createGame()
     renderGame()
 }
 
@@ -135,7 +135,9 @@ function onCellClicked(elCell) {
     const cell = gBoard[coords.i][coords.j]
 
     if (cell.isShown || cell.isMarked) return
+
     if (gGame.isHintUsed) return handleHint(coords)
+    if (gGame.isManualMode) return handleManualMode(coords)
 
     handleFirstClick(cell)
     expandShown(cell, coords)
@@ -165,7 +167,7 @@ function onSafeClick() {
     if (gGame.safeCount <= 0 || !gGame.isOn) return
 
     const coord = getSafeCoord()
-    if(!coord) return
+    if (!coord) return
 
     const elCell = getElCell(coord)
     elCell.classList.add('highlight')
@@ -175,6 +177,23 @@ function onSafeClick() {
         elCell.classList.remove('highlight')
         renderSafeClicks()
     }, 1000)
+}
+
+function onManualMode() {
+    const mineCount = +prompt('How many mines would you like to place?')
+    if (!mineCount || mineCount > gLevel.SIZE ** 2) return
+
+    const elBoard = document.querySelector('.board')
+    elBoard.classList.add('manual')
+
+    createGame()
+    gGame.isManualMode = true
+    gLevel.MINES = mineCount
+
+    stopTimer()
+    buildBoard()
+    renderMarkedMines()
+    renderBoard()
 }
 
 function expandShown(cell, coords) {
@@ -255,8 +274,10 @@ function checkLose() {
 
 function handleFirstClick(cell) {
     if (gGame.isFirstClick) return
-    cell.isShown = true
-    gGame.shownSafeCount++
+    if (cell) {
+        cell.isShown = true
+        gGame.shownSafeCount++
+    }
     gGame.isFirstClick = true
     setHiddenSafeCoords()
     setMines()
@@ -299,10 +320,26 @@ function handleHint(coords) {
     renderBoard()
 }
 
+function handleManualMode(coords) {
+    gGame.minesToPlace.push(coords)
+
+    const elCell = getElCell(coords)
+    elCell.innerText = MINE
+
+    if (gGame.minesToPlace.length >= gLevel.MINES) {
+        const elBoard = document.querySelector('.board')
+        elBoard.classList.remove('manual')
+
+        handleFirstClick()
+        renderMarkedMines()
+        renderBoard()
+    }
+}
+
 function setHiddenSafeCoords() {
     for (let i = 0; i < gBoard.length; i++) {
         for (let j = 0; j < gBoard[i].length; j++) {
-            if (gBoard[i][j].isShown) continue
+            if (gBoard[i][j].isShown || gBoard[i][j].isMine) continue
             gGame.hiddenSafeCoords.push({ i, j })
         }
     }
@@ -319,9 +356,13 @@ function setMinesNegsCount() {
 
 function setMines() {
     for (let i = 0; i < gLevel.MINES; i++) {
-        const coord = getSafeCoord()
+        const coord = gGame.isManualMode ? gGame.minesToPlace[i] : getSafeCoord()
         gBoard[coord.i][coord.j].isMine = true
+
+        if (gGame.isManualMode) removeHiddenSafeCell({ i: coord.i, j: coord.j })
     }
+
+    if (gGame.isManualMode) gGame.isManualMode = false
 }
 
 function setLevel(diff = 1) {
@@ -387,6 +428,7 @@ function createGame() {
         isOn: true,
         isFirstClick: false,
         isHintUsed: false,
+        isManualMode: false,
         shownSafeCount: 0,
         markedCount: 0,
         hintCount: 3,
@@ -394,6 +436,7 @@ function createGame() {
         safeCount: 3,
         secsPassed: 0,
         timerInterval: 0,
-        hiddenSafeCoords: []
+        hiddenSafeCoords: [],
+        minesToPlace: []
     }
 }

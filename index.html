@@ -20,9 +20,10 @@
         </div>
         <div class="info">
             <div class="marked-mines"></div>
-            <button class="btn-safe" onclick="onSafeClick()">Safe Click (<span></span>)</button>
-            <div class="timer">00:00</div>
+            <div class="timer"></div>
         </div>
+        <button class="btn btn-safe" onclick="onSafeClick()">Safe Click (<span></span>)</button>
+        <button class="btn btn-manual" onclick="onManualMode()">Manually Create</button>
         <table>
             <tbody class="board" onmousedown="renderSmiley(SMILEY_DANGER)" onmouseup="renderSmiley(SMILEY_NORMAL)">
             </tbody>
