@@ -20,11 +20,16 @@ function onInit() {
     setLevel()
     createGame()
     buildBoard()
+    renderGame()
+}
+
+function renderGame() {
     renderBoard()
     renderLives()
     renderHints()
     renderSmiley()
     renderMarkedMines()
+    renderScore()
 }
 
 function buildBoard() {
@@ -91,8 +96,21 @@ function renderMarkedMines() {
     document.querySelector('.marked-mines').innerText = gLevel.MINES - gGame.markedCount
 }
 
+function renderScore() {
+    const score = loadFromStorage('score')
+    const elScore = document.querySelector('.score span')
+    if (!score) {
+        elScore.innerText = 'no best score yet!'
+        return
+    }
+
+    elScore.innerText = score + ' seconds'
+}
+
 function onCellMarked(ev, elCell) {
     ev.preventDefault()
+    if (!gGame.isOn) return
+
     const { i, j } = getCellCoords(elCell)
     const cell = gBoard[i][j]
 
@@ -115,9 +133,9 @@ function onCellClicked(elCell) {
     if (cell.isShown || cell.isMarked) return
     if (gGame.isHintUsed) return handleHint(coords)
 
-    handleFirstClick()
-    handleMine(cell)
+    handleFirstClick(cell)
     expandShown(cell, coords)
+    handleMine(cell)
     checkWin()
     renderBoard()
 }
@@ -175,16 +193,25 @@ function startTimer() {
 }
 
 function stopTimer() {
-    if(gGame && gGame.timerInterval) clearInterval(gGame.timerInterval)
+    if (gGame && gGame.timerInterval) clearInterval(gGame.timerInterval)
     document.querySelector('.timer').innerText = '00:00'
+}
+
+function saveScore() {
+    const score = loadFromStorage('score')
+    if (score && score < gGame.secsPassed) return
+
+    saveToStorage('score', gGame.secsPassed)
 }
 
 function checkWin() {
     const safeCells = gLevel.SIZE ** 2 - gLevel.MINES
     if (gGame.shownSafeCount === safeCells && gGame.markedCount === gLevel.MINES) {
         gGame.isOn = false
+        clearInterval(gGame.timerInterval)
+        saveScore()
         renderSmiley(SMILEY_WIN)
-        stopTimer()
+        renderScore()
     }
 }
 
@@ -192,11 +219,13 @@ function checkLose() {
     if (gGame.liveCount > 0) return
     gGame.isOn = false
     renderSmiley(SMILEY_SAD)
-    stopTimer()
+    clearInterval(gGame.timerInterval)
 }
 
-function handleFirstClick() {
+function handleFirstClick(cell) {
     if (gGame.isFirstClick) return
+    cell.isShown = true
+    gGame.shownSafeCount++
     gGame.isFirstClick = true
     setEmptyPositions()
     setMines()
