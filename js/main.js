@@ -11,18 +11,20 @@ const SMILEY_WIN = '😎'
 const SMILEY_DANGER = '😯'
 
 var gBoard
-var gEmptyPositions
 var gGame
 var gLevel
+var gEmptyPositions
 
 function onInit() {
-    setLevel(3)
+    stopTimer()
+    setLevel()
     createGame()
     buildBoard()
     renderBoard()
     renderLives()
     renderHints()
     renderSmiley()
+    renderMarkedMines()
 }
 
 function buildBoard() {
@@ -85,6 +87,10 @@ function renderSmiley(smiley = SMILEY_NORMAL) {
     document.querySelector('.game-container .smiley').innerText = smiley
 }
 
+function renderMarkedMines() {
+    document.querySelector('.marked-mines').innerText = gLevel.MINES - gGame.markedCount
+}
+
 function onCellMarked(ev, elCell) {
     ev.preventDefault()
     const { i, j } = getCellCoords(elCell)
@@ -97,6 +103,7 @@ function onCellMarked(ev, elCell) {
 
     checkWin()
     renderBoard()
+    renderMarkedMines()
 }
 
 function onCellClicked(elCell) {
@@ -107,7 +114,7 @@ function onCellClicked(elCell) {
 
     if (cell.isShown || cell.isMarked) return
     if (gGame.isHintUsed) return handleHint(coords)
-    
+
     handleFirstClick()
     handleMine(cell)
     expandShown(cell, coords)
@@ -116,28 +123,28 @@ function onCellClicked(elCell) {
 }
 
 function onSelectHint(elHint) {
-    if(elHint.classList.contains('selected')) {
+    if (elHint.classList.contains('selected')) {
         gGame.isHintUsed = false
         elHint.classList.remove('selected')
         return
     }
 
     const elPrevSelectedHint = document.querySelector('.hint.selected')
-    if(elPrevSelectedHint) {
+    if (elPrevSelectedHint) {
         elPrevSelectedHint.classList.remove('selected')
     }
-    
+
     gGame.isHintUsed = true
     elHint.classList.add('selected')
 }
 
 function expandShown(cell, coords) {
-    if(cell.isMine || cell.isShown || cell.isMarked) return
+    if (cell.isMine || cell.isShown || cell.isMarked) return
 
     cell.isShown = true
     gGame.shownSafeCount++
 
-    if(cell.minesAroundCount) return
+    if (cell.minesAroundCount) return
 
     for (let i = coords.i - 1; i <= coords.i + 1; i++) {
         if (i < 0 || i > gBoard.length - 1) continue
@@ -146,16 +153,38 @@ function expandShown(cell, coords) {
             if (i === coords.i && j === coords.j) continue
 
             const currCell = gBoard[i][j]
-            expandShown(currCell, {i, j})
+            expandShown(currCell, { i, j })
         }
     }
 }
 
+function startTimer() {
+    const elTimer = document.querySelector('.timer')
+
+    gGame.timerInterval = setInterval(() => {
+        gGame.secsPassed++
+
+        let minutes = Math.floor(gGame.secsPassed / 60)
+        let seconds = gGame.secsPassed % 60
+
+        minutes = minutes < 10 ? '0' + minutes : minutes
+        seconds = seconds < 10 ? '0' + seconds : seconds
+
+        elTimer.innerText = minutes + ':' + seconds
+    }, 1000)
+}
+
+function stopTimer() {
+    if(gGame && gGame.timerInterval) clearInterval(gGame.timerInterval)
+    document.querySelector('.timer').innerText = '00:00'
+}
+
 function checkWin() {
     const safeCells = gLevel.SIZE ** 2 - gLevel.MINES
-    if(gGame.shownSafeCount === safeCells && gGame.markedCount === gLevel.MINES) {
+    if (gGame.shownSafeCount === safeCells && gGame.markedCount === gLevel.MINES) {
         gGame.isOn = false
         renderSmiley(SMILEY_WIN)
+        stopTimer()
     }
 }
 
@@ -163,6 +192,7 @@ function checkLose() {
     if (gGame.liveCount > 0) return
     gGame.isOn = false
     renderSmiley(SMILEY_SAD)
+    stopTimer()
 }
 
 function handleFirstClick() {
@@ -171,6 +201,7 @@ function handleFirstClick() {
     setEmptyPositions()
     setMines()
     setMinesNegsCount()
+    startTimer()
 }
 
 function handleMine(cell) {
@@ -193,7 +224,7 @@ function handleHint(coords) {
             currCell.isShown = true
             currCell.isHint = true
 
-            setTimeout(()=> {
+            setTimeout(() => {
                 currCell.isShown = false
                 currCell.isHint = false
                 renderHints()
@@ -302,5 +333,6 @@ function createGame() {
         hintCount: 3,
         liveCount: 3,
         secsPassed: 0,
+        timerInterval: 0,
     }
 }

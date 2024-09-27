@@ -29,6 +29,20 @@ h1 {
     font-size: 2.5rem;
 }
 
+.game-container .info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-inline: 0.5rem;
+    font-family: monospace;
+}
+
+.game-container .info > *{
+    background-color: black;
+    color: red;
+    padding: 0.5rem;
+}
+
 .top-bar {
     display: grid;
     place-items: center;
