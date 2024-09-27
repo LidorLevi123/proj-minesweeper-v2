@@ -13,7 +13,6 @@ const SMILEY_DANGER = '😯'
 var gBoard
 var gGame
 var gLevel
-var gEmptyPositions
 
 function onInit() {
     stopTimer()
@@ -21,15 +20,6 @@ function onInit() {
     createGame()
     buildBoard()
     renderGame()
-}
-
-function renderGame() {
-    renderBoard()
-    renderLives()
-    renderHints()
-    renderSmiley()
-    renderMarkedMines()
-    renderScore()
 }
 
 function buildBoard() {
@@ -43,6 +33,16 @@ function buildBoard() {
     }
 
     gBoard = board
+}
+
+function renderGame() {
+    renderBoard()
+    renderLives()
+    renderHints()
+    renderSmiley()
+    renderMarkedMines()
+    renderScore()
+    renderSafeClicks()
 }
 
 function renderBoard() {
@@ -107,6 +107,10 @@ function renderScore() {
     elScore.innerText = score + ' seconds'
 }
 
+function renderSafeClicks() {
+    document.querySelector('.btn-safe span').innerText = gGame.safeCount
+}
+
 function onCellMarked(ev, elCell) {
     ev.preventDefault()
     if (!gGame.isOn) return
@@ -138,6 +142,7 @@ function onCellClicked(elCell) {
     handleMine(cell)
     checkWin()
     renderBoard()
+    console.log(gGame.hiddenSafeCoords)
 }
 
 function onSelectHint(elHint) {
@@ -156,11 +161,28 @@ function onSelectHint(elHint) {
     elHint.classList.add('selected')
 }
 
+function onSafeClick() {
+    if (gGame.safeCount <= 0 || !gGame.isOn) return
+
+    const coord = getSafeCoord()
+    if(!coord) return
+
+    const elCell = getElCell(coord)
+    elCell.classList.add('highlight')
+
+    setTimeout(() => {
+        gGame.safeCount--
+        elCell.classList.remove('highlight')
+        renderSafeClicks()
+    }, 1000)
+}
+
 function expandShown(cell, coords) {
     if (cell.isMine || cell.isShown || cell.isMarked) return
 
     cell.isShown = true
     gGame.shownSafeCount++
+    removeHiddenSafeCell(coords)
 
     if (cell.minesAroundCount) return
 
@@ -204,6 +226,15 @@ function saveScore() {
     saveToStorage('score', gGame.secsPassed)
 }
 
+function removeHiddenSafeCell(coords) {
+    for (let i = 0; i < gGame.hiddenSafeCoords.length; i++) {
+        const currCoord = gGame.hiddenSafeCoords[i]
+        if (currCoord.i === coords.i && currCoord.j === coords.j) {
+            gGame.hiddenSafeCoords.splice(i, 1)
+        }
+    }
+}
+
 function checkWin() {
     const safeCells = gLevel.SIZE ** 2 - gLevel.MINES
     if (gGame.shownSafeCount === safeCells && gGame.markedCount === gLevel.MINES) {
@@ -227,7 +258,7 @@ function handleFirstClick(cell) {
     cell.isShown = true
     gGame.shownSafeCount++
     gGame.isFirstClick = true
-    setEmptyPositions()
+    setHiddenSafeCoords()
     setMines()
     setMinesNegsCount()
     startTimer()
@@ -268,12 +299,11 @@ function handleHint(coords) {
     renderBoard()
 }
 
-function setEmptyPositions() {
-    gEmptyPositions = []
+function setHiddenSafeCoords() {
     for (let i = 0; i < gBoard.length; i++) {
         for (let j = 0; j < gBoard[i].length; j++) {
             if (gBoard[i][j].isShown) continue
-            gEmptyPositions.push({ i, j })
+            gGame.hiddenSafeCoords.push({ i, j })
         }
     }
 }
@@ -289,8 +319,8 @@ function setMinesNegsCount() {
 
 function setMines() {
     for (let i = 0; i < gLevel.MINES; i++) {
-        const pos = getEmptyPos()
-        gBoard[pos.i][pos.j].isMine = true
+        const coord = getSafeCoord()
+        gBoard[coord.i][coord.j].isMine = true
     }
 }
 
@@ -315,9 +345,9 @@ function getMinesAroundCount(coords) {
     return count
 }
 
-function getEmptyPos() {
-    const randIdx = getRandomInt(0, gEmptyPositions.length)
-    return gEmptyPositions.splice(randIdx, 1)[0]
+function getSafeCoord() {
+    const randIdx = getRandomInt(0, gGame.hiddenSafeCoords.length)
+    return gGame.hiddenSafeCoords.splice(randIdx, 1)[0]
 }
 
 function getCellContent(cell) {
@@ -361,7 +391,9 @@ function createGame() {
         markedCount: 0,
         hintCount: 3,
         liveCount: 3,
+        safeCount: 3,
         secsPassed: 0,
         timerInterval: 0,
+        hiddenSafeCoords: []
     }
 }

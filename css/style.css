@@ -37,12 +37,29 @@ h1 {
     font-family: monospace;
 }
 
-.game-container .info>* {
+.game-container .info>*:not(.btn-safe) {
     background-color: black;
     color: red;
     padding: 0.5rem;
     width: 8rem;
     text-align: center;
+}
+
+.btn-safe {
+    background: #00a9e9;
+    border: 1px solid white;
+    color: white;
+    font-weight: bold;
+    font-size: 1.1rem;
+    padding: 1rem;
+    border-radius: 1em;
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+.btn-safe:hover {
+    opacity: 0.9;
+    box-shadow: inset 0px 0px 5px 3px white;
 }
 
 .top-bar {
