@@ -203,6 +203,10 @@ function onUndo() {
     renderBoard()
 }
 
+function onToggleDarkMode() {
+    document.body.classList.toggle('darkmode')
+}
+
 function expandShown(cell, coords) {
     if (cell.isMine || cell.isShown || cell.isMarked) return
 

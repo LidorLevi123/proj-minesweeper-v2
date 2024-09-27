@@ -12,26 +12,32 @@
 
     <h1>Minesweeper</h1>
 
-    <section class="game-container">
+    <button class="btn btn-darkmode" onclick="onToggleDarkMode()">Toggle Dark Mode</button>
+
+    <div class="game-container">
+
         <div class="top-bar">
             <ul class="lives-list"></ul>
             <div class="smiley" onclick="onInit()" title="Restart"></div>
             <ul class="hints-list"></ul>
         </div>
+
         <div class="info">
             <div class="marked-mines"></div>
             <button class="btn btn-undo" onclick="onUndo()">Undo</button>
             <div class="timer"></div>
         </div>
+
         <button class="btn btn-safe" onclick="onSafeClick()">Safe Click (<span></span>)</button>
         <button class="btn btn-manual" onclick="onManualMode()">Manually Create</button>
+
         <table>
             <tbody class="board" onmousedown="renderSmiley(SMILEY_DANGER)" onmouseup="renderSmiley(SMILEY_NORMAL)">
             </tbody>
         </table>
 
         <h5 class="score">🏆 Best score: <span></span> 🏆</h5>
-    </section>
+    </div>
 
     <footer>By Lidor <img src="img/lidor.png" alt=""></footer>
 
