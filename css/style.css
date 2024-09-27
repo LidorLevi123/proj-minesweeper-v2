@@ -89,6 +89,12 @@ table {
     background-color: red;
 }
 
+.cell.highlight {
+    background-color: rgb(207, 198, 23, 0.3);
+    box-shadow: inset 0px 0px 12px 13px rgb(17, 161, 213);
+    scale: 1.02;
+}
+
 .cell:hover {
     opacity: 0.5;
 }

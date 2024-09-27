@@ -187,12 +187,15 @@ function handleHint(coords) {
         if (i < 0 || i > gBoard.length - 1) continue
         for (let j = coords.j - 1; j <= coords.j + 1; j++) {
             if (j < 0 || j > gBoard[i].length - 1) continue
-            const currCell = gBoard[i][j]
+            if (gBoard[i][j].isShown) continue
 
+            const currCell = gBoard[i][j]
             currCell.isShown = true
+            currCell.isHint = true
 
             setTimeout(()=> {
                 currCell.isShown = false
+                currCell.isHint = false
                 renderHints()
                 renderBoard()
             }, 1000)
@@ -275,6 +278,7 @@ function getCellClass(cell) {
 
     if (cell.isShown) cellClass += 'shown '
     if (cell.isMine) cellClass += 'mine '
+    if (cell.isHint) cellClass += 'highlight '
 
     return cellClass
 }
