@@ -148,6 +148,14 @@ function onCellClicked(elCell) {
     renderBoard()
 }
 
+function onChangeLevel(diff) {
+    stopTimer()
+    setLevel(diff)
+    buildBoard()
+    createGame()
+    renderGame()
+}
+
 function onSelectHint(elHint) {
     if (elHint.classList.contains('selected')) {
         gGame.isHintUsed = false
@@ -187,13 +195,14 @@ function onManualMode() {
     const elBoard = document.querySelector('.board')
     elBoard.classList.add('manual')
 
+    stopTimer()
     createGame()
     gGame.isManualMode = true
     gLevel.MINES = mineCount
 
-    stopTimer()
     buildBoard()
     renderMarkedMines()
+    renderSafeClicks()
     renderBoard()
 }
 

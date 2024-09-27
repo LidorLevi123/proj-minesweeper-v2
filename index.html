@@ -28,8 +28,16 @@
             <div class="timer"></div>
         </div>
 
-        <button class="btn btn-safe" onclick="onSafeClick()">Safe Click (<span></span>)</button>
-        <button class="btn btn-manual" onclick="onManualMode()">Manually Create</button>
+        <ul class="levels-list">
+            <li class="btn" onclick="onChangeLevel(1)">Easy</li>
+            <li class="btn" onclick="onChangeLevel(2)">Medium</li>
+            <li class="btn" onclick="onChangeLevel(3)">Hard</li>
+        </ul>
+
+        <div class="actions">
+            <button class="btn btn-safe" onclick="onSafeClick()">Safe Click (<span></span>)</button>
+            <button class="btn btn-manual" onclick="onManualMode()">Manually Create</button>
+        </div>
 
         <table>
             <tbody class="board" onmousedown="renderSmiley(SMILEY_DANGER)" onmouseup="renderSmiley(SMILEY_NORMAL)">
