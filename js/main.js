@@ -139,12 +139,13 @@ function onCellClicked(elCell) {
     if (gGame.isHintUsed) return handleHint(coords)
     if (gGame.isManualMode) return handleManualMode(coords)
 
+    gGame.prevBoards.push(JSON.parse(JSON.stringify(gBoard)))
+
     handleFirstClick(cell)
     expandShown(cell, coords)
     handleMine(cell)
     checkWin()
     renderBoard()
-    console.log(gGame.hiddenSafeCoords)
 }
 
 function onSelectHint(elHint) {
@@ -193,6 +194,12 @@ function onManualMode() {
     stopTimer()
     buildBoard()
     renderMarkedMines()
+    renderBoard()
+}
+
+function onUndo() {
+    if(!gGame.prevBoards.length) return
+    gBoard = gGame.prevBoards.pop()
     renderBoard()
 }
 
@@ -437,6 +444,7 @@ function createGame() {
         secsPassed: 0,
         timerInterval: 0,
         hiddenSafeCoords: [],
-        minesToPlace: []
+        minesToPlace: [],
+        prevBoards: [],
     }
 }
