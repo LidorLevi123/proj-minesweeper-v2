@@ -12,7 +12,7 @@ function getElCell(coords) {
     return document.querySelector(`[data-i="${i}"][data-j="${j}"]`)
 }
 
-function getCellCoords(elCell) {
+function getCellCoord(elCell) {
     const i = +elCell.dataset.i
     const j = +elCell.dataset.j
     return { i, j }
