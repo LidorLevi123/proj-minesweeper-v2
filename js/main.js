@@ -335,6 +335,15 @@ function removeHiddenSafeCell(coord) {
     }
 }
 
+function removeMineCoord(coord) {
+    for (let i = 0; i < gGame.minesCoords.length; i++) {
+        const currCoord = gGame.minesCoords[i]
+        if (currCoord.i === coord.i && currCoord.j === coord.j) {
+            gGame.minesCoords.splice(i, 1)
+        }
+    }
+}
+
 function checkWin() {
     const safeCells = gLevel.SIZE ** 2 - gLevel.MINES
     if (gGame.shownSafeCount === safeCells && gGame.markedCount === gLevel.MINES) {
@@ -403,25 +412,34 @@ function handleHint(coord) {
     renderBoard()
 }
 
-function handleManualMode(coords) {
-    gGame.minesCoords.push(coords)
-
-    const elCell = getElCell(coords)
-    elCell.innerText = MINE
+function handleManualMode(coord) {
+    const elCell = getElCell(coord)
+    
+    if(elCell.innerText === MINE) {
+        removeMineCoord(coord)
+        gGame.markedCount--
+        elCell.innerText = ''
+    } else {
+        gGame.minesCoords.push(coord)
+        gGame.markedCount++
+        elCell.innerText = MINE
+    }
 
     if (gGame.minesCoords.length >= gLevel.MINES) {
         const elBoard = document.querySelector('.board')
         elBoard.classList.remove('manual')
 
+        gGame.markedCount = 0
         handleFirstClick()
-        renderMarkedCount()
         renderBoard()
     }
+
+    renderMarkedCount()
 }
 
-function handleMegaHint(coords) {
-    gGame.megaHintCoords.push(coords)
-    const elCell = getElCell(coords)
+function handleMegaHint(coord) {
+    gGame.megaHintCoords.push(coord)
+    const elCell = getElCell(coord)
     elCell.classList.add('selected')
 
     if (gGame.megaHintCoords.length < 2) return
