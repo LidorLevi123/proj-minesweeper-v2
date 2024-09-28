@@ -20,6 +20,18 @@
 
     <div class="game-container">
 
+        <div class="actions">
+            <button class="btn btn-mega" onclick="onMegaHint(this)">Mega Hint</button>
+            <button class="btn btn-safe" onclick="onSafeClick()">Safe Click (<span></span>)</button>
+            <button class="btn btn-manual" onclick="onManualMode()">Manually Create</button>
+        </div>
+
+        <ul class="levels-list">
+            <li class="btn" onclick="onChangeLevel(1)">Easy</li>
+            <li class="btn" onclick="onChangeLevel(2)">Medium</li>
+            <li class="btn" onclick="onChangeLevel(3)">Hard</li>
+        </ul>
+
         <div class="top-bar">
             <ul class="lives-list"></ul>
             <div class="smiley" onclick="onInit()" title="Restart"></div>
@@ -30,18 +42,6 @@
             <div class="marked-mines"></div>
             <button class="btn btn-undo" onclick="onUndo()">Undo</button>
             <div class="timer"></div>
-        </div>
-
-        <ul class="levels-list">
-            <li class="btn" onclick="onChangeLevel(1)">Easy</li>
-            <li class="btn" onclick="onChangeLevel(2)">Medium</li>
-            <li class="btn" onclick="onChangeLevel(3)">Hard</li>
-        </ul>
-
-        <div class="actions">
-            <button class="btn btn-mega" onclick="onMegaHint(this)">Mega Hint</button>
-            <button class="btn btn-safe" onclick="onSafeClick()">Safe Click (<span></span>)</button>
-            <button class="btn btn-manual" onclick="onManualMode()">Manually Create</button>
         </div>
 
         <table>
