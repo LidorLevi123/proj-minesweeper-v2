@@ -42,7 +42,7 @@ function renderGame() {
     renderLives()
     renderHints()
     renderSmiley()
-    renderMarkedMines()
+    renderMarkedCount()
     renderScore()
     renderSafeClicks()
 }
@@ -94,7 +94,7 @@ function renderSmiley(smiley = SMILEY_NORMAL) {
     document.querySelector('.game-container .smiley').innerText = smiley
 }
 
-function renderMarkedMines() {
+function renderMarkedCount() {
     document.querySelector('.marked-mines').innerText = gLevel.MINES - gGame.markedCount
 }
 
@@ -127,7 +127,7 @@ function onCellMarked(ev, elCell) {
 
     checkWin()
     renderBoard()
-    renderMarkedMines()
+    renderMarkedCount()
 }
 
 function onCellClicked(elCell) {
@@ -142,9 +142,8 @@ function onCellClicked(elCell) {
     if (gGame.isManualMode) return handleManualMode(coord)
     if (gGame.isMegaHint) return handleMegaHint(coord)
 
-    gGame.prevBoards.push(JSON.parse(JSON.stringify(gBoard)))
-
     handleFirstClick(cell)
+    saveAction()
     expandShown(cell, coord)
     handleMine(cell)
     checkWin()
@@ -205,14 +204,20 @@ function onManualMode() {
     gLevel.MINES = mineCount
 
     buildBoard()
-    renderMarkedMines()
+    renderMarkedCount()
     renderSafeClicks()
     renderBoard()
 }
 
 function onUndo() {
-    if (!gGame.prevBoards.length) return
-    gBoard = gGame.prevBoards.pop()
+    const { actions } = gGame
+    if (!actions.length || !gGame.isOn) return
+
+    const { board, hiddenSafeCoords, shownSafeCount } = gGame.actions.pop()
+
+    gGame.hiddenSafeCoords = hiddenSafeCoords
+    gGame.shownSafeCount = shownSafeCount
+    gBoard = board
     renderBoard()
 }
 
@@ -236,7 +241,7 @@ function onMegaHint(elBtn) {
 }
 
 function onExterminate() {
-    if(!gGame.minesCoords.length) return
+    if (!gGame.minesCoords.length) return
     const length = gGame.minesCoords.length >= 3 ? 3 : gGame.minesCoords.length
 
     for (let i = 0; i < length; i++) {
@@ -250,7 +255,7 @@ function onExterminate() {
     }
 
     setMinesNegsCount()
-    renderMarkedMines()
+    renderMarkedCount()
     renderBoard()
     checkWin()
 }
@@ -293,7 +298,10 @@ function startTimer() {
 }
 
 function stopTimer() {
-    if (gGame && gGame.timerInterval) clearInterval(gGame.timerInterval)
+    if (gGame && gGame.timerInterval) {
+        clearInterval(gGame.timerInterval)
+        gGame.secsPassed = 0
+    }
     document.querySelector('.timer').innerText = '00:00'
 }
 
@@ -302,6 +310,16 @@ function saveScore() {
     if (score && score < gGame.secsPassed) return
 
     saveToStorage('score', gGame.secsPassed)
+}
+
+function saveAction() {
+    const action = {
+        board: JSON.parse(JSON.stringify(gBoard)),
+        hiddenSafeCoords: JSON.parse(JSON.stringify(gGame.hiddenSafeCoords)),
+        shownSafeCount: gGame.shownSafeCount,
+    }
+
+    gGame.actions.push(action)
 }
 
 function enableMegaBtn() {
@@ -345,6 +363,7 @@ function handleFirstClick(cell) {
     setHiddenSafeCoords()
     setMines()
     setMinesNegsCount()
+    stopTimer()
     startTimer()
 }
 
@@ -354,7 +373,7 @@ function handleMine(cell) {
     gGame.liveCount--
     gGame.markedCount++
     renderLives()
-    renderMarkedMines()
+    renderMarkedCount()
     checkLose()
 }
 
@@ -395,7 +414,7 @@ function handleManualMode(coords) {
         elBoard.classList.remove('manual')
 
         handleFirstClick()
-        renderMarkedMines()
+        renderMarkedCount()
         renderBoard()
     }
 }
@@ -507,7 +526,7 @@ function getCellContent(cell) {
     var cellContent = ''
 
     if (cell.isShown) {
-        if(cell.isBlown) cellContent = FIRE
+        if (cell.isBlown) cellContent = FIRE
         else if (cell.isMine) cellContent = MINE
         else if (cell.minesAroundCount) cellContent = cell.minesAroundCount
     }
@@ -556,7 +575,7 @@ function createGame() {
         timerInterval: 0,
         hiddenSafeCoords: [],
         minesCoords: [],
-        prevBoards: [],
+        actions: [],
         megaHintCoords: []
     }
 }
