@@ -19,6 +19,7 @@ function onInit() {
     setLevel()
     buildBoard()
     createGame()
+    enableMegaBtn()
     renderGame()
 }
 
@@ -138,6 +139,7 @@ function onCellClicked(elCell) {
 
     if (gGame.isHintUsed) return handleHint(coords)
     if (gGame.isManualMode) return handleManualMode(coords)
+    if (gGame.isMegaHint) return handleMegaHint(coords)
 
     gGame.prevBoards.push(JSON.parse(JSON.stringify(gBoard)))
 
@@ -153,6 +155,7 @@ function onChangeLevel(diff) {
     setLevel(diff)
     buildBoard()
     createGame()
+    enableMegaBtn()
     renderGame()
 }
 
@@ -207,13 +210,28 @@ function onManualMode() {
 }
 
 function onUndo() {
-    if(!gGame.prevBoards.length) return
+    if (!gGame.prevBoards.length) return
     gBoard = gGame.prevBoards.pop()
     renderBoard()
 }
 
 function onToggleDarkMode() {
     document.body.classList.toggle('darkmode')
+}
+
+function onMegaHint(elBtn) {
+    const elBoard = document.querySelector('.board')
+
+    if (gGame.isMegaHint) {
+        gGame.isMegaHint = false
+        elBtn.innerText = 'Mega Hint'
+        elBoard.classList.remove('mega-hint')
+        return
+    }
+
+    gGame.isMegaHint = true
+    elBtn.innerText = 'Cancel'
+    elBoard.classList.add('mega-hint')
 }
 
 function expandShown(cell, coords) {
@@ -265,6 +283,10 @@ function saveScore() {
     saveToStorage('score', gGame.secsPassed)
 }
 
+function enableMegaBtn() {
+    document.querySelector('.btn-mega').disabled = false
+}
+
 function removeHiddenSafeCell(coords) {
     for (let i = 0; i < gGame.hiddenSafeCoords.length; i++) {
         const currCoord = gGame.hiddenSafeCoords[i]
@@ -276,6 +298,8 @@ function removeHiddenSafeCell(coords) {
 
 function checkWin() {
     const safeCells = gLevel.SIZE ** 2 - gLevel.MINES
+    console.log('safeCells:', safeCells)
+    console.log('gGame.shownSafeCount:', gGame.shownSafeCount)
     if (gGame.shownSafeCount === safeCells && gGame.markedCount === gLevel.MINES) {
         gGame.isOn = false
         clearInterval(gGame.timerInterval)
@@ -311,6 +335,7 @@ function handleMine(cell) {
     gGame.liveCount--
     gGame.markedCount++
     renderLives()
+    renderMarkedMines()
     checkLose()
 }
 
@@ -356,6 +381,42 @@ function handleManualMode(coords) {
     }
 }
 
+function handleMegaHint(coords) {
+    gGame.megaHintCoords.push(coords)
+    const elCell = getElCell(coords)
+    elCell.classList.add('selected')
+
+    if (gGame.megaHintCoords.length < 2) return
+
+    const topLeftCoord = gGame.megaHintCoords[0]
+    const bottomRightCoord = gGame.megaHintCoords[1]
+
+    const elBoard = document.querySelector('.board')
+    const elBtn = document.querySelector('.btn-mega')
+
+    for (let i = topLeftCoord.i; i <= bottomRightCoord.i; i++) {
+        for (let j = topLeftCoord.j; j <= bottomRightCoord.j; j++) {
+            const currCell = gBoard[i][j]
+            if(currCell.isShown) continue
+
+            currCell.isShown = true
+            currCell.isHint = true
+
+            setTimeout(() => {
+                currCell.isShown = false
+                currCell.isHint = false
+                renderBoard()
+            }, 2000)
+        }
+    }
+
+    gGame.isMegaHint = false
+    elBtn.disabled = true
+    elBtn.innerText = 'Mega Hint'
+    elBoard.classList.remove('mega-hint')
+    renderBoard()
+}
+
 function setHiddenSafeCoords() {
     for (let i = 0; i < gBoard.length; i++) {
         for (let j = 0; j < gBoard[i].length; j++) {
@@ -385,7 +446,7 @@ function setMines() {
     if (gGame.isManualMode) gGame.isManualMode = false
 }
 
-function setLevel(diff = 1) {
+function setLevel(diff = 2) {
     if (diff === 1) gLevel = { SIZE: 4, MINES: 2 }
     else if (diff === 2) gLevel = { SIZE: 6, MINES: 6 }
     else if (diff === 3) gLevel = { SIZE: 8, MINES: 12 }
@@ -439,7 +500,8 @@ function createCell() {
         minesAroundCount: 0,
         isShown: false,
         isMine: false,
-        isMarked: false
+        isMarked: false,
+        isHint: false
     }
 }
 
@@ -449,6 +511,8 @@ function createGame() {
         isFirstClick: false,
         isHintUsed: false,
         isManualMode: false,
+        isMegaHint: false,
+        isMegaUsed: false,
         shownSafeCount: 0,
         markedCount: 0,
         hintCount: 3,
@@ -459,5 +523,6 @@ function createGame() {
         hiddenSafeCoords: [],
         minesToPlace: [],
         prevBoards: [],
+        megaHintCoords: []
     }
 }
