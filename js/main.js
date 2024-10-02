@@ -15,9 +15,9 @@ var gBoard
 var gGame
 var gLevel
 
-function onInit() {
+function onInit(diff = 2) {
     stopTimer()
-    setLevel()
+    setLevel(diff)
     buildBoard()
     createGame()
     enableMegaBtn()
@@ -71,23 +71,12 @@ function renderBoard() {
 }
 
 function renderLives() {
-    var strHTML = ''
-
-    for (let i = 0; i < gGame.liveCount; i++) {
-        strHTML += `<li>${LIVE}</li>`
-    }
-
-    document.querySelector('.lives-list').innerHTML = strHTML
+    document.querySelector('.lives-list').innerHTML = `<li>${LIVE}</li>`.repeat(gGame.liveCount)
 }
 
 function renderHints() {
-    var strHTML = ''
-
-    for (let i = 0; i < gGame.hintCount; i++) {
-        strHTML += `<li class="hint" onclick="onSelectHint(this)">${HINT}</li>`
-    }
-
-    document.querySelector('.hints-list').innerHTML = strHTML
+    const strHTML = `<li class="hint" onclick="onSelectHint(this)">${HINT}</li>`
+    document.querySelector('.hints-list').innerHTML = strHTML.repeat(gGame.hintCount)
 }
 
 function renderSmiley(smiley = SMILEY_NORMAL) {
@@ -101,12 +90,8 @@ function renderMarkedCount() {
 function renderScore() {
     const score = loadFromStorage('score')
     const elScore = document.querySelector('.score span')
-    if (!score) {
-        elScore.innerText = 'no best score yet!'
-        return
-    }
 
-    elScore.innerText = score + ' seconds'
+    elScore.innerText = score ? score + ' seconds' : 'no best score yet!'
 }
 
 function renderSafeClicks() {
@@ -148,15 +133,6 @@ function onCellClicked(elCell) {
     handleMine(cell)
     checkWin()
     renderBoard()
-}
-
-function onChangeLevel(diff) {
-    stopTimer()
-    setLevel(diff)
-    buildBoard()
-    createGame()
-    enableMegaBtn()
-    renderGame()
 }
 
 function onSelectHint(elHint) {
@@ -245,13 +221,18 @@ function onExterminate() {
     const length = gGame.minesCoords.length >= 3 ? 3 : gGame.minesCoords.length
 
     for (let i = 0; i < length; i++) {
-        const coord = getMineCoord()
+        const randIdx = getRandomInt(0, gGame.minesCoords.length)
+        const coord = gGame.minesCoords[randIdx]
         const cell = gBoard[coord.i][coord.j]
+        
+        if(cell.isMarked) continue
 
         cell.isShown = true
         cell.isBlown = true
         cell.isMine = false
+
         gGame.markedCount++
+        gGame.minesCoords.splice(randIdx, 1)
     }
 
     setMinesNegsCount()
@@ -530,11 +511,6 @@ function getMinesAroundCount(coord) {
     return count
 }
 
-function getMineCoord() {
-    const randIdx = getRandomInt(0, gGame.minesCoords.length)
-    return gGame.minesCoords.splice(randIdx, 1)[0]
-}
-
 function getSafeCoord() {
     const randIdx = getRandomInt(0, gGame.hiddenSafeCoords.length)
     return gGame.hiddenSafeCoords.splice(randIdx, 1)[0]
@@ -560,7 +536,7 @@ function getCellClass(cell) {
     if (cell.isShown) cellClass += 'shown '
     if (cell.isMine) cellClass += 'mine '
     if (cell.isHint) cellClass += 'highlight '
-    if (cell.isBlown) cellClass += 'blown'
+    if (cell.isBlown) cellClass += 'blown '
 
     return cellClass
 }
