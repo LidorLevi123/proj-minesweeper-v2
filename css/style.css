@@ -45,6 +45,19 @@ h1 ~ div {
     margin: auto;
 }
 
+table {
+    border: 1px solid black;
+    border-collapse: collapse;
+    font-family: monospace;
+    place-self: center;
+    margin: 0 auto
+}
+
+button:disabled {
+    opacity: 0.4;
+    pointer-events: none;
+}
+
 .game-container {
     display: grid;
     gap: 5px;
@@ -157,14 +170,6 @@ h1 ~ div {
     background: #fe0033;
 }
 
-table {
-    border: 1px solid black;
-    border-collapse: collapse;
-    font-family: monospace;
-    place-self: center;
-    margin: 0 auto
-}
-
 .cell {
     width: clamp(50px, 8vw, 70px);
     height: clamp(50px, 8vw, 70px);
@@ -234,9 +239,4 @@ footer {
 footer img {
     width: 30px;
     border-radius: 50%;
-}
-
-button:disabled {
-    opacity: 0.4;
-    pointer-events: none;
 }
